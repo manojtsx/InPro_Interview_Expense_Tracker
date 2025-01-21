@@ -10,6 +10,7 @@ export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<User>){}
 
     async create(createUserDto: CreateUserDto): Promise<User> {
+        console.log(createUserDto)
         const createdUser = new this.userModel(createUserDto);
         const result = await createdUser.save();
         if(!result){
@@ -33,7 +34,14 @@ export class UsersService {
         }
         return user;
       }
-    
+
+      async findByEmail(email : string): Promise<User | null>{
+        const user = await this.userModel.findOne({email}).exec();
+        if(!user){
+          throw new Error("No User Found")
+        }
+        return user;
+      }
       async delete(id: string): Promise<User | null> {
         const result =  await this.userModel.findByIdAndDelete(id).exec();
         if(!result){

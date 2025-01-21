@@ -10,6 +10,7 @@ export class UsersController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try{
+      console.log("Received Data : ",CreateUserDto)
      await this.usersService.create(createUserDto);
      return {message : "User Created Successfully."}
     }catch(error){

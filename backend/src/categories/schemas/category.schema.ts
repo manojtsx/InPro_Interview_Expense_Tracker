@@ -6,9 +6,6 @@ export class Category extends Document {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ type: String, enum: ['income', 'expense'], required: true })
-  type: string; // Either income or expense
-
   @Prop({ type: String, default: '' })
   description: string;
 

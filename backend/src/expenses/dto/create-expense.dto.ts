@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString, IsDate, IsEnum, IsMongoId } from 'class-validator';
 
 export class CreateExpenseDto {
@@ -11,18 +12,15 @@ export class CreateExpenseDto {
 
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   date: Date;
 
-  @IsString()
-  @IsEnum(['income', 'expense'])
-  type: string;
-
   @IsMongoId()
-  category: string;
+  categoryId: string;
 
   @IsString()
   note: string;
 
   @IsMongoId()
-  user: string;
+  userId: string;
 }

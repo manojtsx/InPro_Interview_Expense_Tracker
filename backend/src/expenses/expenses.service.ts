@@ -4,18 +4,31 @@ import { Model } from 'mongoose';
 import { Expense } from './schemas/expense.schema';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { Category } from 'src/categories/schemas/category.schema';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class ExpensesService {
-  constructor(@InjectModel(Expense.name) private expenseModel: Model<Expense>) {}
+  constructor(@InjectModel(Expense.name) private expenseModel: Model<Expense>,
+    @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @InjectModel(User.name) private readonly userModel: Model<User>) { }
 
   async create(createExpenseDto: CreateExpenseDto): Promise<Expense> {
+    console.log(createExpenseDto);
     const newExpense = new this.expenseModel(createExpenseDto);
-    return newExpense.save();
+    const result = await newExpense.save();
+    if (!result) {
+      throw new Error('Could not create expense');
+    }
+    return result;
   }
 
   async findAll(): Promise<Expense[]> {
-    return this.expenseModel.find().populate('category user').exec();
+    const result = await this.expenseModel.find().populate('categoryId userId').exec();
+    if (!result) {
+      throw new Error('No expenses found');
+    }
+    return result;
   }
 
   async findOne(id: string): Promise<Expense> {

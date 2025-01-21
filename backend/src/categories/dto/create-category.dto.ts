@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsMongoId } from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString()
@@ -6,9 +6,14 @@ export class CreateCategoryDto {
   name: string;
 
   @IsString()
-  @IsEnum(['income', 'expense'])
-  type: string;
+  @IsNotEmpty()
+  icon: string;
 
   @IsString()
-  description: string;
+  @IsNotEmpty()
+  @IsMongoId()
+  userId: string;
+
+  @IsString()
+  description : string;
 }

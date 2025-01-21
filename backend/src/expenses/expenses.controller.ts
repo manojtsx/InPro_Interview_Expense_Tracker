@@ -5,16 +5,22 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 
 @Controller('expenses')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
+  constructor(private readonly expensesService: ExpensesService) { }
 
   @Post()
-  create(@Body() createExpenseDto: CreateExpenseDto) {
-    return this.expensesService.create(createExpenseDto);
+  async create(@Body() createExpenseDto: CreateExpenseDto) {
+    try {
+      console.log("Received Data : ", createExpenseDto)
+      await this.expensesService.create(createExpenseDto);
+      return { message: 'Expense Created Successfully.' };
+    } catch (error) {
+      return { message: error.message }
+    }
   }
 
   @Get()
-  findAll() {
-    return this.expensesService.findAll();
+  async findAll() {
+    return await this.expensesService.findAll();
   }
 
   @Get(':id')
@@ -28,7 +34,13 @@ export class ExpensesController {
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.expensesService.delete(id);
+  async delete(@Param('id') id: string) {
+    try{
+      await this.expensesService.delete(id);
+      return {message : "Expense Deleted Successfully"}
+    }catch(error){
+      return { message: error.message}
+    }
+  
   }
 }

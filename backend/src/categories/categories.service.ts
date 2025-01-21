@@ -10,12 +10,17 @@ export class CategoriesService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    console.log(createCategoryDto)
     const newCategory = new this.categoryModel(createCategoryDto);
-    return newCategory.save();
+    const result = await newCategory.save();
+    if(!result){
+      throw new Error("Couldnot create category");
+    }
+    return result;
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoryModel.find().exec();
+    return this.categoryModel.find().populate('userId','name email').exec();
   }
 
   async findOne(id: string): Promise<Category | null> {

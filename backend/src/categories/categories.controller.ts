@@ -8,27 +8,50 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    try{
+      console.log("Received Data : ",createCategoryDto)
+      await this.categoriesService.create(createCategoryDto);
+      return { message: 'Category Created Successfully.' };
+    }catch(error){
+      return { message: error.message}
+      }
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll() {
+    try{
+      return await this.categoriesService.findAll();
+    }catch(error){
+      return { message: error.message}
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try{
+      return await this.categoriesService.findOne(id);
+    }catch(error){
+      return { message: error.message}
+    }
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(id, updateCategoryDto);
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    try{
+      return await this.categoriesService.update(id, updateCategoryDto);
+    }catch(error){
+      return { message: error.message}
+    }
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.categoriesService.delete(id);
+  async delete(@Param('id') id: string) {
+    try{
+      await this.categoriesService.delete(id);
+      return {message : "Category Deleted Successfully"}
+    }catch(error){
+      return { message: error.message}
+    }
   }
 }

@@ -11,6 +11,7 @@ import { RecurringExpensesModule } from './recurring-expenses/recurring-expenses
 import { ReportsModule } from './reports/reports.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { Connection } from 'mongoose';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { Connection } from 'mongoose';
     BudgetsModule,
     RecurringExpensesModule,
     ReportsModule,
-    NotificationsModule
+    NotificationsModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
