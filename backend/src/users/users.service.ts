@@ -10,7 +10,11 @@ export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<User>){}
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        console.log(createUserDto)
+        // check whether email is unique or not
+        const user = await this.userModel.findOne({email : createUserDto.email}).exec();
+        if(user){
+          throw new Error("Email already exists")
+        }
         const createdUser = new this.userModel(createUserDto);
         const result = await createdUser.save();
         if(!result){
@@ -44,6 +48,14 @@ export class UsersService {
       }
       async delete(id: string): Promise<User | null> {
         const result =  await this.userModel.findByIdAndDelete(id).exec();
+        if(!result){
+          throw new Error('User not found')
+        }
+        return result;
+      }
+
+      async update(id: string, createUserDto: CreateUserDto): Promise<User | null> {
+        const result = await this.userModel.findByIdAndUpdate(id, createUserDto, {new: true}).exec();
         if(!result){
           throw new Error('User not found')
         }

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Category } from './schemas/category.schema';
 
 @Controller('categories')
 export class CategoriesController {
@@ -19,9 +20,11 @@ export class CategoriesController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Req() req) : Promise<Category[] | { message: string }> {
     try{
-      return await this.categoriesService.findAll();
+      const userId = req.user.sub;
+      console.log("User Id : ",userId)
+      return await this.categoriesService.findAll(userId);
     }catch(error){
       return { message: error.message}
     }
@@ -39,7 +42,9 @@ export class CategoriesController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     try{
-      return await this.categoriesService.update(id, updateCategoryDto);
+      const result = await this.categoriesService.update(id, updateCategoryDto);
+      if(!result) throw new Error("Category not found");
+      return { message: 'Category Updated Successfully.' };
     }catch(error){
       return { message: error.message}
     }

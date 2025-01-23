@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { toast } from "react-toastify";
 
 ChartJS.register(
   CategoryScale,
@@ -56,9 +57,13 @@ export default function UserDashboard({ userId }: UserDashboardProps) {
           },
         });
         const response = await result.json();
-        setCategories(response);
+        if (Array.isArray(response)) {
+          setCategories(response);
+        } else {
+          throw new Error(response.message);
+        }
       } catch (error: any) {
-        console.error("Failed to fetch categories", error);
+        toast.error(error.message);
       }
     };
 
@@ -70,9 +75,13 @@ export default function UserDashboard({ userId }: UserDashboardProps) {
           },
         });
         const response = await result.json();
-        setExpenses(response);
+        if (Array.isArray(response)) {
+          setExpenses(response);
+        } else {
+          throw new Error(response.message);
+        }
       } catch (error: any) {
-        console.error("Failed to fetch expenses", error);
+        toast.error(error.message);
       }
     };
 
@@ -88,7 +97,7 @@ export default function UserDashboard({ userId }: UserDashboardProps) {
         label: "Expenses",
         data: categories.map((category) => {
           const categoryExpenses = expenses.filter(
-            (expense) => expense.categoryId._id === category._id
+            (expense) => expense.categoryId && expense.categoryId._id === category._id
           );
           return categoryExpenses.reduce(
             (total, expense) => total + expense.amount,
@@ -148,22 +157,33 @@ export default function UserDashboard({ userId }: UserDashboardProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {expenses.map((expense) => (
-                        <tr key={expense._id}>
-                          <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                            {expense.title}
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                            {expense.amount}
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                            {expense.categoryId.name}
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                            {new Date(expense.date).toLocaleDateString()}
+                      {expenses.length > 0 ? (
+                        expenses.map((expense) => (
+                          <tr key={expense._id}>
+                            <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
+                              {expense.title}
+                            </td>
+                            <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
+                              {expense.amount}
+                            </td>
+                            <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
+                              {expense.categoryId ? expense.categoryId.name : "N/A"}
+                            </td>
+                            <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
+                              {new Date(expense.date).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="py-2 px-4 border-b border-gray-200 dark:border-dark-3"
+                          >
+                            No expenses found
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -172,15 +192,21 @@ export default function UserDashboard({ userId }: UserDashboardProps) {
                     Categories
                   </h2>
                   <ul className="mb-6 text-left">
-                    {categories.map((category) => (
-                      <li
-                        key={category._id}
-                        className="mb-4 flex items-center text-gray-700"
-                      >
-                        <span className="mr-2">{category.icon}</span>
-                        <span>{category.name}</span>
+                    {categories.length > 0 ? (
+                      categories.map((category) => (
+                        <li
+                          key={category._id}
+                          className="mb-4 flex items-center text-gray-700"
+                        >
+                          <span className="mr-2">{category.icon}</span>
+                          <span>{category.name}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="mb-4 text-gray-700">
+                        No categories found
                       </li>
-                    ))}
+                    )}
                   </ul>
                 </div>
               </div>

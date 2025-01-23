@@ -31,7 +31,6 @@ export class AuthService {
     // Generate and return JWT
     const payload = { sub: user._id, email: user.email };
     const token = this.jwtService.sign(payload);
-    console.log(token)
     // Return a response or token
     return { message: 'Login successful', accessToken: token, userId : user._id };
   }catch(error){

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
@@ -42,6 +42,19 @@ export class UsersController {
     try{
       await this.usersService.delete(id);
       return {message : 'User Deleted Successfully'}
+    }catch(error){
+      return {message : error.message}
+    }
+  }
+
+  @Put(":id")
+  async update (@Param('id') id: string, @Body() createUserDto: CreateUserDto){
+    try{
+      const result = await this.usersService.update(id, createUserDto);
+      if(!result){
+        throw new Error('User not found');
+      }
+      return {message : 'User Updated Successfully'}
     }catch(error){
       return {message : error.message}
     }

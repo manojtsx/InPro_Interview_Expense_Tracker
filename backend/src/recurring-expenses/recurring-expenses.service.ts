@@ -15,7 +15,11 @@ export class RecurringExpensesService {
   }
 
   async findAll(): Promise<RecurringExpense[]> {
-    return this.recurringExpenseModel.find().populate('userId categoryId').exec();
+   const result = await this.recurringExpenseModel.find().populate('userId categoryId').exec();
+   if(!result){
+     throw new Error('RecurringExpense not found');
+   }
+    return result;
   }
 
   async findOne(id: string): Promise<RecurringExpense> {

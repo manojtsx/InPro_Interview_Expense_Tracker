@@ -28,6 +28,7 @@ const ViewExpense = () => {
         if (!response) {
           throw new Error("Failed to fetch expenses");
         }
+        console.log(response);
         setExpenses(response);
       } catch (error: any) {
         toast.error(error.message);
@@ -73,9 +74,7 @@ const ViewExpense = () => {
   );
 
   return (
-    <section
-      className={`bg-gray-1 dark:bg-dark ${montserrat.className}`}
-    >
+    <section className={`bg-gray-1 dark:bg-dark ${montserrat.className}`}>
       <div className="container mx-auto">
         <div className="-mx-4 flex flex-wrap">
           <div className="w-full px-4">
@@ -133,10 +132,10 @@ const ViewExpense = () => {
                         {new Date(expense.date).toLocaleDateString()}
                       </td>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                        {expense.categoryId.name}
+                        {expense.categoryId ? expense.categoryId.name : "N/A"}
                       </td>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
-                        {expense.userId.name}
+                        {expense.userId ? expense.userId.name : "N/A"}
                       </td>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
                         <button

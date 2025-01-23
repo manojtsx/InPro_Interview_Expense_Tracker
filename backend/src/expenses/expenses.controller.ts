@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { Expense } from './schemas/expense.schema';
 
 @Controller('expenses')
 export class ExpensesController {
@@ -19,18 +20,27 @@ export class ExpensesController {
   }
 
   @Get()
-  async findAll() {
-    return await this.expensesService.findAll();
+  async findAll(@Req() req): Promise<Expense[]> {
+    const userId = req.user.sub;
+    return await this.expensesService.findAll(userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.expensesService.findOne(id);
+  async findOne(@Param('id') id: string):Promise<Expense> {
+    return await this.expensesService.findOne(id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
-    return this.expensesService.update(id, updateExpenseDto);
+  async update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
+    try{
+      const result = await this.expensesService.update(id, updateExpenseDto);
+      if(!result){
+        throw new Error('Expense not found');
+      }
+      return { message: 'Expense Updated Successfully.' };
+    }catch(error){
+      return { message: error.message}
+    }
   }
 
   @Delete(':id')

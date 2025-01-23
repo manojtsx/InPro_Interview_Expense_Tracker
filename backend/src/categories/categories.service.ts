@@ -19,16 +19,28 @@ export class CategoriesService {
     return result;
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.categoryModel.find().populate('userId','name email').exec();
+  async findAll(userId : string): Promise<Category[]> {
+    const result = await this.categoryModel.find({userId}).populate('userId','name email').exec();
+    if(!result){
+      throw new Error("No categories found");
+    }
+    return result;
   }
 
   async findOne(id: string): Promise<Category | null> {
-    return this.categoryModel.findById(id).exec();
+    const result = await this.categoryModel.findById(id).populate('userId').exec();
+    if(!result){
+      throw new Error("No category found");
+    }
+    return result;
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category | null> {
-    return this.categoryModel.findByIdAndUpdate(id, updateCategoryDto, { new: true }).exec();
+    const result = await this.categoryModel.findByIdAndUpdate(id, updateCategoryDto, { new: true }).exec();
+    if(!result){
+      throw new Error("Category not found");
+    }
+    return result;
   }
 
   async delete(id: string): Promise<Category | null> {

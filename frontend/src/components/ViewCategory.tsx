@@ -116,7 +116,7 @@ const ViewCategory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCategories.map((category) => (
+                  {filteredCategories && filteredCategories.map((category) => (
                     <tr key={category._id}>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">
                         {category.name}

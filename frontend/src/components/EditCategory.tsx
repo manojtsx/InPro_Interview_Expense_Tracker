@@ -1,35 +1,60 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { InputBoxProps } from "@/interfaces/OtherInterface";
+import { Category } from "@/interfaces/Category";
 const API = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const AddCategory = () => {
+const EditCategory = () => {
   const router = useRouter();
-  const [category, setCategory] = useState({
-    name: "",
-    icon: "",
-    userId: localStorage.getItem('userId') || null,
-    description: "",
-  });
+  const { id } = useParams();
+  const [category, setCategory] = useState<Category | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      console.log(id);
+      try {
+        const result = await fetch(`${API}categories/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const response = await result.json();
+        if (!response) {
+          throw new Error("Failed to fetch category");
+        }
+        setCategory(response);
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    };
+
+    fetchCategory();
+  }, [API, id]);
 
   const handleCategoryDataChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!category) return;
     const name = event.target.name;
     const value = event.target.value;
     setCategory({ ...category, [name]: value });
   };
 
-  const handleAddCategory = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEditCategory = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log(category);
+    if (isSubmitting || !category) return; // Prevent multiple submissions
+    setIsSubmitting(true);
     try {
-      const result = await fetch(`${API}categories`, {
-        method: "POST",
+      const result = await fetch(`${API}categories/${id}`, {
+        method: "PUT",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(category)
+        body: JSON.stringify({ ...category, userId: localStorage.getItem('userId') })
       });
       const response = await result.json();
       if (!response) {
@@ -39,8 +64,14 @@ const AddCategory = () => {
       router.push(`/categories`);
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  if (!category) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px]">
@@ -53,7 +84,7 @@ const AddCategory = () => {
                   <img src="/icon/logo.png" alt="logo" />
                 </a>
               </div>
-              <form onSubmit={handleAddCategory} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <form onSubmit={handleEditCategory} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <InputBox value={category.name} onChange={handleCategoryDataChange} type="text" name="name" placeholder="Category Name" />
                 <InputBox value={category.icon} onChange={handleCategoryDataChange} type="text" name="icon" placeholder="Icon" />
                 <div className="col-span-1 sm:col-span-2">
@@ -68,8 +99,9 @@ const AddCategory = () => {
                 <div className="col-span-1 sm:col-span-2">
                   <input
                     type="submit"
-                    value="Add Category"
-                    className="w-full cursor-pointer rounded-md border border-primary bg-blue-600 text-white px-5 py-3 text-base font-medium hover:bg-blue-400 transition hover:bg-opacity-90"
+                    value="Edit Category"
+                    className={`w-full cursor-pointer rounded-md border border-primary bg-blue-600 text-white px-5 py-3 text-base font-medium hover:bg-blue-400 transition hover:bg-opacity-90 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isSubmitting}
                   />
                 </div>
               </form>
@@ -81,7 +113,7 @@ const AddCategory = () => {
   );
 };
 
-export default AddCategory;
+export default EditCategory;
 
 const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, name, value, onChange }) => {
   return (
@@ -93,6 +125,7 @@ const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, name, value, onC
         value={value}
         onChange={onChange}
         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3"
+        required
       />
     </div>
   );

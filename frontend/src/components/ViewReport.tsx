@@ -54,12 +54,12 @@ const ViewReport = () => {
   };
 
   return (
-    <section className="bg-gray-1">
+    <section className="bg-gray-1 py-10">
       <div className="container mx-auto">
         <div className="-mx-4 flex flex-wrap">
           <div className="w-full px-4">
             <div className="relative mx-auto max-w-[800px] overflow-hidden rounded-lg px-10 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]">
-              <h1 className="mb-10 text-2xl font-bold text-gray-800 dark:text-white">View Report</h1>
+              <h1 className="mb-10 text-2xl font-bold text-gray-800 ">View Report</h1>
               <div className="mb-6 flex justify-between">
                 <div className="flex flex-col">
                   <label className="mb-2 text-gray-700 dark:text-gray-300">Start Date</label>
@@ -108,7 +108,7 @@ const ViewReport = () => {
                     <tr key={expense._id}>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">{expense.title}</td>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">{expense.amount}</td>
-                      <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">{expense.categoryId.name}</td>
+                      <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">{expense.categoryId ? expense.categoryId.name : "N/A"}</td>
                       <td className="py-2 px-4 border-b border-gray-200 dark:border-dark-3">{new Date(expense.date).toLocaleDateString()}</td>
                     </tr>
                   ))}

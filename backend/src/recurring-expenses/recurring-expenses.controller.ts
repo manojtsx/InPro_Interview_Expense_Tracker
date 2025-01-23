@@ -13,8 +13,12 @@ export class RecurringExpensesController {
   }
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  async findAll() {
+    try{
+      await this.service.findAll();
+    }catch(error){
+      return {message : error.message}
+    }
   }
 
   @Get(':id')

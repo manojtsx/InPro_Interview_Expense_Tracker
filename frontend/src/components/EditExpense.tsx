@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { InputBoxProps } from "@/interfaces/OtherInterface";
 import { Category } from "@/interfaces/Category";
 const API = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const AddExpense = () => {
+const EditExpense = () => {
   const router = useRouter();
+  const { id } = useParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [expense, setExpense] = useState({
     title: "",
@@ -16,7 +17,7 @@ const AddExpense = () => {
     date: "",
     isRecurring: false,
     note: "",
-    userId: localStorage.getItem('userId')
+    userId: localStorage.getItem("userId")
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,34 +34,59 @@ const AddExpense = () => {
         if (!response) {
           throw new Error("Failed to fetch categories");
         }
+        console.log(response);
         setCategories(response);
       } catch (error: any) {
         toast.error(error.message);
       }
     };
 
+    const fetchExpense = async () => {
+      try {
+        const result = await fetch(`${API}expenses/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const response = await result.json();
+        if (!response) {
+          throw new Error(response.message);
+        }
+        console.log(response);
+        setExpense({
+            ...response,
+            date: response.date ? new Date(response.date).toISOString().slice(0, 10) : '', // Ensure a valid date format
+          });
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    };
+
     fetchCategories();
-  }, [API]);
+    fetchExpense();
+  }, [API, id]);
 
   const handleExpenseDataChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!expense) return;
     const name = event.target.name;
     const value = event.target.type === "checkbox" ? (event.target as HTMLInputElement).checked : event.target.value;
     setExpense({ ...expense, [name]: value });
   };
 
-  const handleAddExpense = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEditExpense = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isSubmitting) return; // Prevent multiple submissions
+    if (isSubmitting || !expense) return; // Prevent multiple submissions
     setIsSubmitting(true);
     const expenseData = {
       ...expense,
       amount: Number(expense.amount),
-      date: new Date(expense.date).toISOString().slice(0, 10),
+      date: new Date(expense.date).toISOString().slice(0, 10)
     };
     console.log(expenseData);
     try {
-      const result = await fetch(`${API}expenses`, {
-        method: "POST",
+      const result = await fetch(`${API}expenses/${id}`, {
+        method: "PUT",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -80,6 +106,10 @@ const AddExpense = () => {
     }
   };
 
+  if (!expense) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px]">
       <div className="container mx-auto">
@@ -91,13 +121,13 @@ const AddExpense = () => {
                   <img src="/icon/logo.png" alt="logo" />
                 </a>
               </div>
-              <form onSubmit={handleAddExpense} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <form onSubmit={handleEditExpense} className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <InputBox value={expense.title} onChange={handleExpenseDataChange} type="text" name="title" placeholder="Title" />
                 <InputBox value={expense.amount.toString()} onChange={handleExpenseDataChange} type="number" name="amount" placeholder="Amount" />
                 <div className="mb-6">
                   <select
                     name="categoryId"
-                    value={expense.categoryId}
+                    value={expense.categoryId ? expense.categoryId.toString() : ""}
                     onChange={handleExpenseDataChange}
                     className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3"
                     required
@@ -110,7 +140,7 @@ const AddExpense = () => {
                     ))}
                   </select>
                 </div>
-                <InputBox value={expense.date} onChange={handleExpenseDataChange} type="date" name="date" placeholder="Date" />
+                <InputBox value={new Date(expense.date).toISOString().slice(0, 10)} onChange={handleExpenseDataChange} type="date" name="date" placeholder="Date" />
                 <div className="mb-6 flex items-center">
                   <input
                     type="checkbox"
@@ -133,7 +163,7 @@ const AddExpense = () => {
                 <div className="col-span-1 sm:col-span-2">
                   <input
                     type="submit"
-                    value="Add Expense"
+                    value="Edit Expense"
                     className={`w-full cursor-pointer rounded-md border border-primary bg-blue-600 text-white px-5 py-3 text-base font-medium hover:bg-blue-400 transition hover:bg-opacity-90 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={isSubmitting}
                   />
@@ -147,7 +177,7 @@ const AddExpense = () => {
   );
 };
 
-export default AddExpense;
+export default EditExpense;
 
 const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, name, value, onChange }) => {
   return (

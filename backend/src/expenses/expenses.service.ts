@@ -23,8 +23,8 @@ export class ExpensesService {
     return result;
   }
 
-  async findAll(): Promise<Expense[]> {
-    const result = await this.expenseModel.find().populate('categoryId userId').exec();
+  async findAll(userId : string): Promise<Expense[]> {
+    const result = await this.expenseModel.find({userId}).populate('categoryId userId').exec();
     if (!result) {
       throw new Error('No expenses found');
     }
@@ -32,7 +32,7 @@ export class ExpensesService {
   }
 
   async findOne(id: string): Promise<Expense> {
-    const expense = await this.expenseModel.findById(id).populate('category user').exec();
+    const expense = await this.expenseModel.findById(id).populate('categoryId userId').exec();
     if (!expense) {
       throw new Error('Expense not found');
     }

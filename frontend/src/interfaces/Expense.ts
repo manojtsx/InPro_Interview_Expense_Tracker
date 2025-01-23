@@ -1,6 +1,6 @@
-import { User } from "./User";
-import { Category } from "./Category";
 
+import {User} from '@/interfaces/User';
+import { Category } from '@/interfaces/Category';
 export interface Expense {
   _id: string;
   userId: User;

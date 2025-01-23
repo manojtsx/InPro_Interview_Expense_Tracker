@@ -5,6 +5,7 @@ export interface Category {
     icon: string;   // Icon or image URL for visualization
     createdAt: Date;
     updatedAt: Date;
+    description?: string;
     userId ?:{
       _id: string;
       name: string;
